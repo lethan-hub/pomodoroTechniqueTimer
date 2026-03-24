@@ -1,0 +1,183 @@
+
+
+<h1 id="headline">Lethan's Pomodoro Timer</h1>
+<h2 id="sub-headline"></h2>
+<div class="button-container">
+        <button onclick="manualJump('Work')">Pomodoro</button>
+        <button onclick="manualJump('Short Break')">Short Break</button>
+        <button onclick="manualJump('Long Break')">Long Break</button>
+        
+        
+</div>
+<div id="timer-display"> 25:00
+        </div>
+        
+</div>
+<style>
+
+        .button-container
+                {
+  
+  border: none;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+        
+        body {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            text-align: center;
+            padding-top: 50px;
+            
+            font-size: 50px;
+            background-color: url('çpedro-lastra-Nyvq2juw4_o-unsplash.jpg');
+            background-size: cover;
+            min-height: 100vh;
+                margin: 0; /* Removes the default white border around the page */
+                background-position: center;
+                background-repeat: no-repeat;
+                background-position: center;
+            
+        }
+
+        button{
+                background-color: white;
+                color: black;
+                border: 1px solid black;
+                border-radius: 12px;
+        }
+        .timer-display{
+                font-size: 75px;
+        }
+        
+        
+        
+      
+
+
+</style>
+
+
+
+             
+<button id="start-btn">Start</button>
+<button id="reset-btn">Reset</button> 
+        <script>
+
+               
+
+                async function Duration(){
+                const response = await fetch('/api/timer/status');
+                const data = await response.json();
+
+                console.log(data.seconds);
+                secondsRemaining = data.seconds;
+                
+                let secs = secondsRemaining % 60;
+            let mins = Math.floor(secondsRemaining / 60);
+            let formattedSecs = secs < 10 ? "0" + secs : secs;
+
+            document.getElementById('sub-headline').innerText = data.phase;
+            
+            display.innerText = mins + ":" + formattedSecs;
+            
+
+            
+        }
+
+         function manualJump(phaseName){
+                clearInterval(timerRunning);
+                timerRunning = null;
+
+                document.getElementById('start-btn').innerText = "Start";
+                        fetch('/jump/' + phaseName)
+        .then(() => {
+            // 2. Once the jump is finished, update the screen
+            // Use the function you already have that fetches the status
+            Duration()(); 
+        });
+                }
+        
+        
+       
+	// JavaScript File for the Time
+
+        // variable to hold the seconds
+
+        let secondsRemaining = 0;
+
+        // A function that runs every 1 second
+
+	const myButton = document.getElementById('start-btn');
+        const display = document.getElementById('timer-display');
+        const myButton2 = document.getElementById('reset-btn')
+        let timerRunning = null;
+
+        
+        myButton2.addEventListener('click',function(){
+                clearInterval(timerRunning);
+                timerRunning = null;
+                
+                display.innerText = "25:00"
+                secondsRemaining = 1500;
+                myButton.innerText = "Start";
+
+
+                
+
+
+        });
+        
+        // This tells what the button to do whenever clicked
+        myButton.addEventListener('click', function() {
+
+    if (timerRunning !== null) {
+        // STOP LOGIC
+        clearInterval(timerRunning);
+        timerRunning = null;
+        myButton.innerText = "Start";
+        return; // Exit the function here so we don't start a new timer!
+    } else {
+        // START LOGIC
+        myButton.innerText = "Stop";
+        
+        timerRunning = setInterval(() => {
+            secondsRemaining--; 
+            
+            let secs = secondsRemaining % 60;
+            let mins = Math.floor(secondsRemaining / 60);
+            let formattedSecs = secs < 10 ? "0" + secs : secs;
+            
+            display.innerText = mins + ":" + formattedSecs;
+
+            if (secondsRemaining <= 0) {
+                clearInterval(timerRunning);
+                fetch('/next').then(()=> {
+                                console.log("Server updated! Now getting the new time...");
+                                Duration();
+                        })
+                timerRunning = null;
+                myButton.innerText = "Start";
+                alert("Time is up!");
+            }
+        }, 1000); // This closes the setInterval
+    } // This closes the 'else'
+}); // This closes the addEventListener
+
+
+     
+        
+        
+        Duration();
+	
+	</script>
+
+
+
+
