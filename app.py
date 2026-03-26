@@ -1,4 +1,6 @@
-from flask import Flask, render_template
+import sqlite3
+
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -45,6 +47,28 @@ def jump_to_phase(phase_name):
     except ValueError:
         # This part handles it if you send a name that isn't in the list
         return "Phase not found", 404
+    
+@app.route('/api/add_item',methods=['POST'])
+def add_tasks():
+    # Grab the data from the frontend
+    incoming_data = request.json
+    item = incoming_data.get('name')
+
+    # Connect the name to the task
+    db = sqlite3.connect('productivity.db')
+    cur = db.cursor()
+
+    # Here we use INSERT INFO to ensure to save it and we just ? to protect from hacker using SQL Injection
+    cur.execute("INSERT INFO tasks(title) VALUES (?)",(item, "Unknown"))
+
+    db.commit()
+    db.close()
+    return "Item Saved."
+
+
+
+
+
     
 
 if __name__ == '__main__':
