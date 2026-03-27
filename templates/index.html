@@ -65,6 +65,7 @@
 <button id="start-btn">Start</button>
 <button id="reset-btn">Reset</button> 
 <button onclick="fastForward()"> >> </button>
+<div id="task-container"></div>
         <script>
 
                 function fastForward(){
@@ -102,6 +103,42 @@
             
 
             
+        }
+
+        // This is for whenever the button is clicked
+        async function send_task(){
+                const taskName = document.getElementById('task-input').value;
+
+                const response = await fetch('/api/add_item', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: taskName })
+
+                }
+                );
+
+                if (response.ok){
+                        console.log("Data saved!")
+                }
+
+        }
+
+        async function load_tasks(){
+                const response = await fetch('/api/get_task');
+                document.getElementById('task-container').innerHTML = "";
+                const data = await response.json();
+                data.Items.forEach(tasks => {
+                        const newRow = document.createElement('p');
+                        newRow.innerText = tasks[1];
+                        document.getElementById('task-container').appendChild(newRow)
+
+                        
+                }); 
+
+                
+
+
+
         }
 
          function manualJump(phaseName){
