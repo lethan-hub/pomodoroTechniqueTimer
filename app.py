@@ -48,6 +48,21 @@ def jump_to_phase(phase_name):
         # This part handles it if you send a name that isn't in the list
         return "Phase not found", 404
     
+def task_setup():
+    db = sqlite3.connect('productivity.db')
+    cur = db.cursor()
+
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS inventory(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL
+                )
+        ''')
+    db.commit()
+    db.close()
+
+task_setup()
+    
 @app.route('/api/add_item',methods=['POST'])
 def add_tasks():
     # Grab the data from the frontend
@@ -59,12 +74,22 @@ def add_tasks():
     cur = db.cursor()
 
     # Here we use INSERT INFO to ensure to save it and we just ? to protect from hacker using SQL Injection
-    cur.execute("INSERT INFO tasks(title) VALUES (?)",(item, "Unknown"))
+    cur.execute("INSERT INFO tasks(title) VALUES (?)",(item))
 
     db.commit()
     db.close()
     return "Item Saved."
 
+@app.route('/api/get_task')
+def show_tasks():
+    db = sqlite3.connect('productivity.db')
+    cur = db.cursor()
+
+    cur.execute("SELECT * FROM tasks")
+    all_rows = cur.fetchall()
+
+    db.close()
+    return {f"Items": all_rows}
 
 
 
