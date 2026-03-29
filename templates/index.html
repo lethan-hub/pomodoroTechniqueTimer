@@ -50,6 +50,12 @@
         .timer-display{
                 font-size: 75px;
         }
+
+        .task-box{
+                border:1px solid red;
+                padding:10px;
+                margin:10px;
+        }
         
         
         
@@ -61,7 +67,7 @@
 
 
 <input type="text" id="task-input" placeholder="Enter task">
-<button id="add-task-btn">Add Task</button>
+<button onclick="send_task()">Add Task</button>
 <button id="start-btn">Start</button>
 <button id="reset-btn">Reset</button> 
 <button onclick="fastForward()"> >> </button>
@@ -106,7 +112,60 @@
         }
 
         // This is for whenever the button is clicked
+        
+
+        async function load_tasks(){
+                const response = await fetch('/api/get_task');
+                document.getElementById('task-container').innerHTML = "";
+                const data = await response.json();
+                console.log(data)
+
+                data.Items.forEach(tasks => {
+                        // This creates the outer box to hold all the infor
+                const box = document.createElement('div');
+                box.classList.add('task-box')
+
+                const taskName = document.createElement('span');
+                taskName.innerText = tasks[1]
+                box.appendChild(taskName)
+
+                // Delete Button in div
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Delete'
+                deleteButton.dataset.id = tasks[0]
+                box.appendChild(deleteButton)
+
+                deleteButton.addEventListener("click", async function () {
+    const taskId = deleteButton.dataset.id;
+
+    const response = await fetch('/api/delete_task', {
+        method: 'DELETE',
+        headers: {
+            "Content-Type": 'application/json'
+        },
+        body: JSON.stringify({
+            id: taskId
+        })
+    });
+});
+
+                // Inner box
+                const currentProgress = document.createElement('span');
+                currentProgress.innerText = `${tasks[3]} / ${tasks[2]}`;
+
+                box.appendChild(currentProgress);
+
+                document.getElementById('task-container').appendChild(box)
+
+                        
+                }); 
+
+        
+
+        }
+
         async function send_task(){
+                console.log("Button was clicked! Starting the engine...");
                 const taskName = document.getElementById('task-input').value;
 
                 const response = await fetch('/api/add_item', {
@@ -119,28 +178,18 @@
 
                 if (response.ok){
                         console.log("Data saved!")
+
+                        load_tasks();
+
+                        // We want to refresh the blank so the user can add another value
+                        document.getElementById("task-input").value = "";
                 }
 
         }
-
-        async function load_tasks(){
-                const response = await fetch('/api/get_task');
-                document.getElementById('task-container').innerHTML = "";
-                const data = await response.json();
-                data.Items.forEach(tasks => {
-                        const newRow = document.createElement('p');
-                        newRow.innerText = tasks[1];
-                        document.getElementById('task-container').appendChild(newRow)
-
-                        
-                }); 
-
-                
-
-
-
+        
+        async function add_task(){
+                const userInput = await fetch('api/')
         }
-
          function manualJump(phaseName){
                 clearInterval(timerRunning);
                 timerRunning = null;

@@ -53,7 +53,7 @@ def task_setup():
     cur = db.cursor()
 
     cur.execute('''
-        CREATE TABLE IF NOT EXISTS inventory(
+        CREATE TABLE IF NOT EXISTS tasks(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL
                 )
@@ -74,7 +74,7 @@ def add_tasks():
     cur = db.cursor()
 
     # Here we use INSERT INFO to ensure to save it and we just ? to protect from hacker using SQL Injection
-    cur.execute("INSERT INFO tasks(title) VALUES (?)",(item))
+    cur.execute("INSERT INTO tasks(title, total_pomodoros, completedçç_pomodoros) VALUES (?, ?, ?)", (item, 4, 0))
 
     db.commit()
     db.close()
@@ -91,6 +91,23 @@ def show_tasks():
     db.close()
     return {f"Items": all_rows}
 
+@app.route('/api/delete_task',methods=['DELETE'])
+def delete_tasks():
+    in_data = request.json
+    target_task = in_data.get('id')
+
+    connection = sqlite3.connect('productivity.db')
+
+
+    cursor = connection.cursor()
+    
+    cursor.execute("DELETE FROM tasks WHERE id = ?", (target_task,))
+
+    connection.commit()
+    connection.close()
+    print(f"DEBUG: Attempting to delete task with ID: {target_task}")
+
+    return {"status": "success"}, 200
 
 
 

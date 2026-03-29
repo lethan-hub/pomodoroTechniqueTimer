@@ -1,4 +1,7 @@
 import sqlite3
+import os
+
+print(os.getcwd())
 
 
 
@@ -11,17 +14,26 @@ def library():
 
 # 3. Write a command to create the "Tasks" table
 # We define the "Columns" here (Name, Target, Status, etc.)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        total_pomodoros INTEGER DEFAULT 4,
-        completed_pomodoros INTEGER DEFAULT 0
+
+    
+    try:
+        cursor.execute('''
+            
+            CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            total_pomodoros INTEGER DEFAULT 1,
+            completed_pomodoros INTEGER DEFAULT 0
         )
-    ''')
+        ''')
+    except Exception as e:
+        print(e)
+
 
     connection.commit()
     connection.close()
+
+library()
 
 
 
