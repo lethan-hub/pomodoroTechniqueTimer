@@ -59,10 +59,8 @@ def get_timer_status():
     elif current_phase == "Short Break":
         # This handles both Short and Long breaks from your list
         return {"seconds": 300, "phase": "Short Break"}
-    elif current_phase == "Long Break":
-        return {"seconds": 900, "phase": "Long Break"}
     else:
-        return {"seconds": 0, "phase": "Unknown"}
+        return {"seconds": 900, "phase": "Long Break"}
 
 @app.route('/jump/<phase_name>')
 def jump_to_phase(phase_name):
@@ -105,7 +103,7 @@ def add_tasks():
     cur = db.cursor()
 
     # Here we use INSERT INFO to ensure to save it and we just ? to protect from hacker using SQL Injection
-    cur.execute("INSERT INTO tasks(title, total_pomodoros, completed_pomodoros) VALUES (?, ?, ?)", (item, 1, 0))
+    cur.execute("INSERT INTO tasks(title, total_pomodoros, completed_pomodoros) VALUES (?, ?, ?)", (item, 4, 0))
 
     db.commit()
     db.close()

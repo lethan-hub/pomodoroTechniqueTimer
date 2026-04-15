@@ -1,281 +1,430 @@
-
-
 <h1 id="headline">Lethan's Pomodoro Timer</h1>
-<h2 id="sub-headline"></h2>
-<div class="button-container">
-        <button onclick="manualJump('Work')">Pomodoro</button>
-        <button onclick="manualJump('Short Break')">Short Break</button>
-        <button onclick="manualJump('Long Break')">Long Break</button>
-        
-        
-        
-</div>
-<div id="timer-display"> 25:00
+
+<div class="dashboard-center">
+    
+    <h2 id="sub-headline"></h2>
+
+    <div id="timer-box">
+        <div class="button-container">
+            <button onclick="manualJump('Work')">Pomodoro</button>
+            <button onclick="manualJump('Short Break')">Short Break</button>
+            <button onclick="manualJump('Long Break')">Long Break</button>
         </div>
+
+        <div id="timer-display">25:00</div>
         
+        <div class="controls-row">
+            <button id="start-btn">Start</button>
+            <button id="reset-btn">Reset</button> 
+            <button onclick="fastForward()"> → </button> </div>
+    </div>
+
+    <div class="input-section">
+        <input type="text" id="task-input" placeholder="Enter task">
+        <button onclick="send_task()" id="add-btn">Add Task</button>
+    </div>
 </div>
+
+<div id="task-container"></div>
+
+<audio id="timer-sound" src="https://codeskulptor-demos.commondatastorage.googleapis.com/descent/gotitem.mp3" preload="auto"></audio>
+
 <style>
-
-      
-        
         body {
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            text-align: center;
-            padding-top: 50px;
-            
-            font-size: 50px;
-            background-color: wheat;
-            background-size: cover;
-            min-height: 100vh;
-                margin: 0; /* Removes the default white border around the page */
-                background-position: center;
-                background-repeat: no-repeat;
-                background-position: center;
-                transition: background-color 0.8s ease;
-            
-        }
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background-color: #6FC276; /* Changes via your JS */
+    transition: background-color 0.8s ease;
+    display: flex;
+    flex-direction: column;
+}
 
-        button{
-                background-color: rgba(255,255,255,0.3);
-                border-radius: 12px;
-                border: none;
-                padding: 12px 24px;
-                font-weight: 600;
-        }
+/* Move Title to Top-Left */
+#headline {
+    font-size: 22px;
+    font-weight: 800;
+    padding: 30px 0 0 40px;
+    margin: 0;
+    color: rgba(0,0,0,0.7);
+}
 
-        button:hover{
-                cursor: pointer;
+.dashboard-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: -50px; /* Slight offset for balance */
+}
 
-        }
-        .timer-display{
-                font-size: 75px;
-        }
+#sub-headline {
+    font-size: 32px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
 
-        .task-box{
-                border:1px solid red;
-                padding:10px;
-                margin:10px;
-        }
-        
-        
-        
-      
+/* THE GLASS BOX */
+#timer-box {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    padding: 50px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
 
+/* HUGE TIMER */
+#timer-display {
+    font-size: 160px; /* Massive Flare */
+    font-weight: 800;
+    color: white;
+    margin: 10px 0;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
 
+.controls-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* CLEAN INPUT */
+.input-section {
+    margin-top: 40px;
+}
+
+#task-input {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 18px;
+    width: 300px;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+/* TASK BOXES (Replacing red borders) */
+.task-box {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 20px 30px;
+    margin: 10px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+    transition: all 0.3s ease;
+}
+
+/* Selection Highlight */
+.task-box[style*="border-color: green"] {
+    border: 2px solid white !important;
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+
+/* Style for the 'Right Side' info in task boxes */
+.right-group span {
+    font-size: 24px;
+    font-weight: 800;
+    margin-right: 15px;
+}
+
+button {
+    /* 1. The "Pill" Shape */
+    background-color: #ffffff; /* Clean white base */
+    color: #1a1a1a;           /* Dark, readable text */
+    border: none;             /* Removes the "school project" outline */
+    border-radius: 50px;      /* Perfect rounded pill shape */
+    
+    /* 2. Typography */
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase; /* Makes them look like a pro dashboard */
+    letter-spacing: 0.5px;
+    
+    /* 3. Spacing & Cursor */
+    padding: 12px 28px;
+    margin: 5px;
+    cursor: pointer;
+    
+    /* 4. The "Flare" (Animations) */
+    transition: all 0.2s ease; /* Smoothly grow/shrink */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Subtle "lift" off the page */
+    outline: none;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+/* 1. The main interaction button (Start/Pause) */
+#start-btn {
+    padding: 18px 45px; /* Large and bold */
+    background-color: #ffffff; /* Keeps white base */
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* 2. Overrides for Phase selection (Work/Short Break/Long Break) */
+.button-container button {
+    background-color: rgba(255, 255, 255, 0.4); /* Glass style base */
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.button-container button:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+/* 3. The Minimalist Next Icon (like image_6.png) */
+.fast-forward-btn {
+    background: none; /* No box style */
+    color: rgba(255,255,255,0.7); /* Subtle white */
+    border: none;
+    box-shadow: none;
+    font-size: 32px;
+    padding: 10px;
+}
+.fast-forward-btn:hover {
+    background: none;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Styling for the fast-forward arrow */
+.controls-row button:last-child {
+    background: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 32px;
+    box-shadow: none;
+    padding: 0 10px;
+}
+
+.controls-row button:last-child:hover {
+    color: white;
+    transform: scale(1.2);
+    background: none;
+}
 </style>
 
+<script>
+    let activeTaskId = null;
 
+    function fastForward(){
+            if(timerRunning !== null){
+                    secondsRemaining = 1;
 
-<input type="text" id="task-input" placeholder="Enter task">
-<button onclick="send_task()">Add Task</button>
-<button id="start-btn">Start</button>
-<button id="reset-btn">Reset</button> 
-<button onclick="fastForward()"> >> </button>
-<div id="task-container"></div>
-        <script>
-
-                function fastForward(){
-                        if(timerRunning !== null){
-                                secondsRemaining = 1;
-
-                        }
-                }
-
-               
-
-                async function Duration(){
-                const response = await fetch('/api/timer/status');
-                const data = await response.json();
-
-                console.log(data.seconds);
-                secondsRemaining = data.seconds;
-                
-                let secs = secondsRemaining % 60;
-            let mins = Math.floor(secondsRemaining / 60);
-            let formattedSecs = secs < 10 ? "0" + secs : secs;
-
-            document.getElementById('sub-headline').innerText = data.phase;
-            
-            display.innerText = mins + ":" + formattedSecs;
-
-            if (data.phase == "Work"){
-                document.body.style.backgroundColor = "#2364AA";
-            }else if(data.phase== "Short Break"){
-                document.body.style.backgroundColor = "#6FC276";
-
-            }else{
-                document.body.style.backgroundColor = "#6FC276";
             }
-            
+    }
 
-            
-        }
+    async function Duration() {
+        const response = await fetch('/api/timer/status');
+        const data = await response.json();
 
-        // This is for whenever the button is clicked
+        secondsRemaining = data.seconds;
         
+        let secs = secondsRemaining % 60;
+        let mins = Math.floor(secondsRemaining / 60);
+        let formattedSecs = secs < 10 ? "0" + secs : secs;
 
-        async function load_tasks(){
-                const response = await fetch('/api/get_task');
-                document.getElementById('task-container').innerHTML = "";
-                const data = await response.json();
-                console.log(data)
+        if (data.phase === "Work") {
+            document.getElementById('sub-headline').innerText = "💻";
+            document.body.style.backgroundColor = "#2364AA"; 
+        } else if (data.phase === "Short Break") {
+            document.getElementById('sub-headline').innerText = "☕";
+            document.body.style.backgroundColor = "#6FC276"; 
+        } else if (data.phase === "Long Break") {
+            document.getElementById('sub-headline').innerText = "🏖️";
+            document.body.style.backgroundColor = "#004E64"; 
+        }
+        
+        display.innerText = mins + ":" + formattedSecs;
+    }
 
-                data.Items.forEach(tasks => {
-                        // This creates the outer box to hold all the infor
-                const box = document.createElement('div');
-                box.classList.add('task-box')
+    async function saveNewName(id, updatedName) {
+        const response = await fetch('/api/update_task_name', {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, name: updatedName })
+        });
+    }
 
-                const taskName = document.createElement('span');
-                taskName.innerText = tasks[1]
-                box.appendChild(taskName)
+    async function saveNewNumber(id, updatedName) {
+        const response = await fetch('/api/update_task_name', {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, name: updatedName })
+        });
+    }
 
-                // Delete Button in div
-                const deleteButton = document.createElement('button');
-                deleteButton.innerText = 'Delete'
-                deleteButton.dataset.id = tasks[0]
-                box.appendChild(deleteButton)
+    async function load_tasks(){
+            const response = await fetch('/api/get_task');
+            document.getElementById('task-container').innerHTML = "";
+            const data = await response.json();
 
-                deleteButton.addEventListener("click", async function () {
-    const taskId = deleteButton.dataset.id;
+            data.Items.forEach(tasks => {
+            const box = document.createElement('div');
+            box.classList.add('task-box')
 
-    const response = await fetch('/api/delete_task', {
-        method: 'DELETE',
-        headers: {
-            "Content-Type": 'application/json'
-        },
-        body: JSON.stringify({
-            id: taskId
-        })
+            box.addEventListener('click', (event) => {
+                if (event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT') {
+                    activeTaskId = tasks[0];
+                    document.querySelectorAll('.task-box').forEach(b => b.style.borderColor = 'red');
+                    box.style.borderColor = 'green';
+                }
+            });
+
+            const taskName = document.createElement('span');
+            taskName.innerText = tasks[1]
+            box.appendChild(taskName)
+
+            taskName.addEventListener('click', ()=>{
+                    const editInput = document.createElement('input');
+                    editInput.type = 'text';
+                    editInput.value = taskName.innerText;
+                    box.replaceChild(editInput, taskName);
+                    editInput.focus();
+                    editInput.addEventListener('blur',()=>{
+                            taskName.innerText = editInput.value;
+                            box.replaceChild(taskName,editInput);
+                            saveNewName(tasks[0],editInput.value);
+                    })
+                    editInput.addEventListener('keydown', (event) => {
+                        if (event.key === "Enter") { editInput.blur(); }
+                    });
+            });
+
+            const rightSide = document.createElement('div');
+            rightSide.classList.add('right-group');
+
+            const currentProgress = document.createElement('span');
+            currentProgress.innerText = `${tasks[3]} / ${tasks[2]}`;
+            currentProgress.addEventListener('click', ()=>{
+                    const editProgress = document.createElement('input');
+                    editProgress.type = 'number';
+                    editProgress.value = tasks[2];
+                    rightSide.replaceChild(editProgress, currentProgress);
+                    editProgress.focus();
+                    editProgress.addEventListener('blur',()=>{
+                            const newNumber = editProgress.value;
+                            tasks[2] = newNumber;
+                            currentProgress.innerText = `${tasks[3]} / ${newNumber}`;
+                            rightSide.replaceChild(currentProgress,editProgress);
+                            saveNewNumber(tasks[0], newNumber);
+                    })
+                    editProgress.addEventListener('keydown', (event) => {
+                        if (event.key === "Enter") { editProgress.blur(); }
+                    });
+            });
+            
+            document.getElementById('task-container').appendChild(box)
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete'
+            deleteButton.dataset.id = tasks[0]
+
+            rightSide.appendChild(currentProgress);
+            rightSide.appendChild(deleteButton);
+            box.appendChild(rightSide);
+
+            deleteButton.addEventListener("click", async function () {
+                const taskId = deleteButton.dataset.id;
+                const response = await fetch('/api/delete_task', {
+                    method: 'DELETE',
+                    headers: { "Content-Type": 'application/json' },
+                    body: JSON.stringify({ id: taskId })
+                });
+                if (response.ok) { load_tasks(); }
+            });
+        }); 
+    }
+
+    async function send_task(){
+            const taskName = document.getElementById('task-input').value;
+            const response = await fetch('/api/add_item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: taskName })
+            });
+            if (response.ok){
+                    load_tasks();
+                    document.getElementById("task-input").value = "";
+            }
+    }
+    
+    function manualJump(phaseName){
+            clearInterval(timerRunning);
+            timerRunning = null;
+            document.getElementById('start-btn').innerText = "Start";
+            fetch('/jump/' + phaseName).then(() => { Duration(); });
+    }
+    
+    let secondsRemaining = 0;
+    const myButton = document.getElementById('start-btn');
+    const display = document.getElementById('timer-display');
+    const myButton2 = document.getElementById('reset-btn')
+    let timerRunning = null;
+
+    myButton2.addEventListener('click',function(){
+            clearInterval(timerRunning);
+            timerRunning = null;
+            Duration();
+            myButton.innerText = "Start";
     });
-});
+    
+    myButton.addEventListener('click', function() {
+        if (timerRunning !== null) {
+            clearInterval(timerRunning);
+            timerRunning = null;
+            myButton.innerText = "Start";
+            return; 
+        } else {
+            myButton.innerText = "Stop";
+            timerRunning = setInterval(() => {
+                secondsRemaining--; 
+                let secs = secondsRemaining % 60;
+                let mins = Math.floor(secondsRemaining / 60);
+                let formattedSecs = secs < 10 ? "0" + secs : secs;
+                display.innerText = mins + ":" + formattedSecs;
 
-                // Inner box
-                const currentProgress = document.createElement('span');
-                currentProgress.innerText = `${tasks[3]} / ${tasks[2]}`;
+                if (secondsRemaining <= 0) {
+                    clearInterval(timerRunning);
 
-                box.appendChild(currentProgress);
+                    // --- PLAY THE LONGER ALARM ---
+                    document.getElementById('timer-sound').play();
 
-                document.getElementById('task-container').appendChild(box)
+                    // --- CHECK IF WORK PHASE BEFORE INCREMENTING ---
+                    const currentEmoji = document.getElementById('sub-headline').innerText;
+                    
+                    if (currentEmoji === "💻" && activeTaskId !== null) {
+                        fetch('/api/increment_progress', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: activeTaskId })
+                        }).then(() => {
+                            load_tasks(); 
+                        });
+                    }
 
-                        
-                }); 
-
-        
-
-        }
-
-        async function send_task(){
-                console.log("Button was clicked! Starting the engine...");
-                const taskName = document.getElementById('task-input').value;
-
-                const response = await fetch('/api/add_item', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: taskName })
-
+                    fetch('/next').then(()=> {
+                        Duration();
+                    })
+                    timerRunning = null;
+                    myButton.innerText = "Start";
+                    alert("Time is up!");
                 }
-                );
-
-                if (response.ok){
-                        console.log("Data saved!")
-
-                        load_tasks();
-
-                        // We want to refresh the blank so the user can add another value
-                        document.getElementById("task-input").value = "";
-                }
-
+            }, 1000);
         }
-        
-        async function add_task(){
-                const userInput = await fetch('api/')
-        }
-         function manualJump(phaseName){
-                clearInterval(timerRunning);
-                timerRunning = null;
+    });
 
-                document.getElementById('start-btn').innerText = "Start";
-                        fetch('/jump/' + phaseName)
-        .then(() => {
-            // 2. Once the jump is finished, update the screen
-            // Use the function you already have that fetches the status
-            Duration()(); 
-        });
-                }
-        
-        
-       
-	// JavaScript File for the Time
-
-        // variable to hold the seconds
-
-        let secondsRemaining = 0;
-
-        // A function that runs every 1 second
-
-	const myButton = document.getElementById('start-btn');
-        const display = document.getElementById('timer-display');
-        const myButton2 = document.getElementById('reset-btn')
-        let timerRunning = null;
-
-        
-        myButton2.addEventListener('click',function(){
-                clearInterval(timerRunning);
-                timerRunning = null;
-                
-                Duration();
-                myButton.innerText = "Start";
-
-
-                
-
-
-        });
-        
-        // This tells what the button to do whenever clicked
-        myButton.addEventListener('click', function() {
-
-    if (timerRunning !== null) {
-        // STOP LOGIC
-        clearInterval(timerRunning);
-        timerRunning = null;
-        myButton.innerText = "Start";
-        return; // Exit the function here so we don't start a new timer!
-    } else {
-        // START LOGIC
-        myButton.innerText = "Stop";
-        
-        timerRunning = setInterval(() => {
-            secondsRemaining--; 
-            
-            let secs = secondsRemaining % 60;
-            let mins = Math.floor(secondsRemaining / 60);
-            let formattedSecs = secs < 10 ? "0" + secs : secs;
-            
-            display.innerText = mins + ":" + formattedSecs;
-
-            if (secondsRemaining <= 0) {
-                clearInterval(timerRunning);
-                fetch('/next').then(()=> {
-                                console.log("Server updated! Now getting the new time...");
-                                Duration();
-                        })
-                timerRunning = null;
-                myButton.innerText = "Start";
-                alert("Time is up!");
-            }
-        }, 1000); // This closes the setInterval
-    } // This closes the 'else'
-}); // This closes the addEventListener
-
-
-     
-        
-        
-        Duration();
-	
-	</script>
-
-
-
-
+    Duration();
+    load_tasks();
+</script>
